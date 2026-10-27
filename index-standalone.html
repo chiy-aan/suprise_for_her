@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Special Surprise For You ❤️</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Noto+Serif+Tamil:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+  <!-- React & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            handwriting: ['"Dancing Script"', 'cursive'],
+            tamil: ['"Noto Serif Tamil"', 'serif'],
+            serif: ['"Playfair Display"', 'serif'],
+            sans: ['"Quicksand"', 'sans-serif'],
+          },
+          animation: {
+            'float': 'float 4s ease-in-out infinite',
+            'dance-sway': 'danceSway 3s ease-in-out infinite alternate',
+            'dance-bounce': 'danceBounce 1.5s ease-in-out infinite alternate',
+            'spin-slow': 'spin 12s linear infinite',
+            'heartbeat': 'heartbeat 1.4s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-14px) rotate(3deg)' },
+            },
+            danceSway: {
+              '0%': { transform: 'rotate(-4deg) translateY(0)' },
+              '50%': { transform: 'rotate(0deg) translateY(-6px)' },
+              '100%': { transform: 'rotate(4deg) translateY(0)' },
+            },
+            danceBounce: {
+              '0%': { transform: 'translateY(0)' },
+              '100%': { transform: 'translateY(-8px)' },
+            },
+            heartbeat: {
+              '0%, 100%': { transform: 'scale(1)' },
+              '15%': { transform: 'scale(1.18)' },
+              '30%': { transform: 'scale(1)' },
+              '45%': { transform: 'scale(1.12)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+    }
+    .perspective-1000 { perspective: 1000px; }
+    .preserve-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; }
+    @keyframes sceneFadeIn {
+      0% { opacity: 0; transform: scale(0.97) translateY(8px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .scene-enter {
+      animation: sceneFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes touchBurst {
+      0% { transform: scale(0.4) translateY(0); opacity: 1; }
+      50% { transform: scale(1.3) translateY(-25px); opacity: 0.9; }
+      100% { transform: scale(0.9) translateY(-55px); opacity: 0; }
+    }
+    .animate-touch-burst {
+      animation: touchBurst 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50 text-gray-800 w-screen h-screen overflow-hidden font-sans selection:bg-rose-200 selection:text-rose-900">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useMemo } = React;
+
+    const defaultData = {
+      girlfriendName: "Sowmiya",
+      boyfriendName: "Dhanush",
+      envelopeMessage: {
+        greeting: "To the girl who holds my heart,",
+        previewText: "I made this tiny corner of the internet just for you. Every smile, every laugh, and every quiet moment with you means the world to me.",
+      },
+      conversation: [
+        { id: 1, sender: "him", text: "Hey... are you still awake? 🌙", time: "11:42 PM", reaction: "❤️" },
+        { id: 2, sender: "her", text: "Mmhmm, was just listening to that song you shared earlier 🎧", time: "11:43 PM", reaction: "🥰" },
+        { id: 3, sender: "him", text: "Do you know what I was thinking today when I saw you smile?", time: "11:45 PM" },
+        { id: 4, sender: "her", text: "What were you thinking, silly? Tell me! 👀✨", time: "11:45 PM" },
+        { id: 5, sender: "him", text: "That somehow, out of everyone in the world, I got lucky enough to have you hold my hand.", time: "11:46 PM", reaction: "🥺💖" },
+        { id: 6, sender: "her", text: "Aww... you always find a way to make my heart do flips 🙈", time: "11:47 PM" },
+        { id: 7, sender: "him", text: "I mean it. If I had to choose all over again, in a thousand lifetimes, I'd still choose you every single time.", time: "11:48 PM", reaction: "❤️✨" },
+        { id: 8, sender: "her", text: "Promise you'll dance with me under the stars? 🌸", time: "11:49 PM" },
+        { id: 9, sender: "him", text: "Always. Wherever you are, that's where I belong. 💕", time: "11:50 PM", reaction: "💍" }
+      ],
+      reasons: [
+        { emoji: "✨", title: "Your Warmest Smile", desc: "How your eyes crinkle when you really laugh. It instantly melts whatever stress I have." },
+        { emoji: "🌸", title: "The Way You Care", desc: "Even in the smallest gestures, the way you check on me and make me feel cherished." },
+        { emoji: "🎵", title: "Our Silly Moments", desc: "The random jokes only the two of us understand, singing off-key, and laughing till our stomachs hurt." },
+        { emoji: "💫", title: "My Safe Place", desc: "With you, I can be 100% myself. You make every ordinary day feel like pure magic." }
+      ],
+      finalLetter: {
+        title: "Forever & Always",
+        paragraphs: [
+          "No matter where life takes us or how busy the world gets, I promise to always listen to you, make you laugh, and love you more each passing day.",
+          "Thank you for being my favorite person, my greatest adventure, and my home.",
+          "I love you more than words could ever show. ❤️"
+        ]
+      }
+    };
+
+    // Screen Touch Hearts Burst
+    function TouchHearts() {
+      const [ripples, setRipples] = useState([]);
+
+      useEffect(() => {
+        const handleTouchOrClick = (e) => {
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          if (!clientX && !clientY) return;
+
+          const id = Date.now() + Math.random();
+          const icons = ['💖', '💕', '✨', '🌸', '❤️'];
+          const icon = icons[Math.floor(Math.random() * icons.length)];
+
+          setRipples((prev) => [...prev.slice(-15), { id, x: clientX, y: clientY, icon }]);
+          setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== id)), 900);
+        };
+
+        window.addEventListener('click', handleTouchOrClick);
+        window.addEventListener('touchstart', handleTouchOrClick, { passive: true });
+        return () => {
+          window.removeEventListener('click', handleTouchOrClick);
+          window.removeEventListener('touchstart', handleTouchOrClick);
+        };
+      }, []);
+
+      return (
+        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+          {ripples.map((r) => (
+            <span
+              key={r.id}
+              className="absolute select-none animate-touch-burst text-xl sm:text-2xl"
+              style={{ left: `${r.x - 12}px`, top: `${r.y - 16}px` }}
+            >
+              {r.icon}
+            </span>
+          ))}
+        </div>
+      );
+    }
+
+    // Floating Ambient Hearts
+    function FloatingHearts() {
+      const particles = useMemo(() => {
+        return Array.from({ length: 20 }).map((_, i) => ({
+          id: i,
+          left: Math.random() * 95 + 2,
+          delay: Math.random() * 6,
+          duration: 6 + Math.random() * 6,
+          size: 14 + Math.random() * 16,
+          type: i % 3 === 0 ? '💖' : i % 3 === 1 ? '🌸' : '✨',
+          opacity: 0.35 + Math.random() * 0.4
+        }));
+      }, []);
+
+      return (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+          {particles.map((p) => (
+            <span
+              key={p.id}
+              className="absolute select-none"
+              style={{
+                left: `${p.left}%`,
+                bottom: '-40px',
+                animation: `floatUp ${p.duration}s ease-in-out infinite`,
+                animationDelay: `${p.delay}s`,
+                fontSize: `${p.size}px`,
+                opacity: p.opacity,
+              }}
+            >
+              {p.type}
+            </span>
+          ))}
+          <style>{`
+            @keyframes floatUp {
+              0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
+              15% { opacity: 0.6; }
+              85% { opacity: 0.6; }
+              100% { transform: translateY(-110vh) rotate(360deg) scale(1.1); opacity: 0; }
+            }
+          `}</style>
+        </div>
+      );
+    }
+
+    // Scene 0: Scooty Delivery at Kandhasaamy Illam
+    function ScootyDeliveryIntro({ onComplete, girlfriendName, boyfriendName }) {
+      const [animStep, setAnimStep] = useState(0);
+
+      useEffect(() => {
+        const t1 = setTimeout(() => setAnimStep(1), 2500);
+        const t2 = setTimeout(() => {
+          setAnimStep(2);
+          if (window.confetti) {
+            confetti({ particleCount: 35, spread: 60, origin: { x: 0.62, y: 0.58 }, colors: ['#f43f5e', '#fb7185', '#ffd700', '#f472b6'] });
+          }
+        }, 4500);
+        const t3 = setTimeout(() => setAnimStep(3), 6000);
+
+        return () => {
+          clearTimeout(t1);
+          clearTimeout(t2);
+          clearTimeout(t3);
+        };
+      }, []);
+
+      return (
+        <div
+          onClick={animStep >= 2 ? onComplete : undefined}
+          className="relative w-full h-full min-h-[85vh] flex flex-col justify-between py-4 px-3 select-none cursor-pointer overflow-hidden font-sans"
+        >
+          <div className="text-center z-20 max-w-lg mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-100 text-rose-800 text-xs sm:text-sm font-bold tracking-wide uppercase shadow-sm border border-rose-200">
+              <span>🏠 Destination: Kandhasaamy Illam</span>
+            </div>
+            <h1 className="mt-2 text-2xl sm:text-4xl font-serif font-bold text-gray-800">
+              A Special Delivery for <span className="font-handwriting text-3xl sm:text-5xl text-rose-600">{girlfriendName}</span>
+            </h1>
+            <p className="mt-1 text-xs sm:text-sm text-gray-600 font-medium h-5">
+              {animStep === 0 && "🛵 Riding along the streets to Kandhasaamy Illam..."}
+              {animStep === 1 && "🔔 Ding-dong! Reached Kandhasaamy Illam..."}
+              {animStep >= 2 && "💌 Special parcel delivered at your doorstep! Touch to open..."}
+            </p>
+          </div>
+
+          <div className="relative w-full max-w-3xl h-[380px] sm:h-[440px] my-auto mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-white/90 bg-gradient-to-b from-[#87CEEB] via-[#FFE4E1] to-[#FFF0F5] flex items-end">
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-6 left-12 w-14 h-14 rounded-full bg-amber-200/80 shadow-[0_0_40px_rgba(253,224,71,0.6)]" />
+              <div className="absolute top-10 left-1/4 text-white/80 text-3xl animate-float">☁️</div>
+              <div className="absolute top-14 right-1/3 text-white/70 text-4xl animate-float">☁️</div>
+            </div>
+
+            {/* Tree on the Left */}
+            <div className="absolute left-3 bottom-24 pointer-events-none opacity-90">
+              <div className="w-20 h-28 bg-emerald-400 rounded-full blur-xs" />
+              <div className="w-24 h-24 bg-emerald-500 rounded-full -mt-20 -ml-2 blur-xs" />
+              <div className="w-4 h-20 bg-amber-800 mx-auto rounded-b" />
+            </div>
+
+            {/* Kandhasaamy Illam House */}
+            <div className="absolute right-0 bottom-20 w-64 sm:w-80 h-72 z-10 select-none">
+              <div className="relative w-full h-full">
+                <div className="absolute top-0 right-2 w-56 sm:w-68 h-16 bg-gradient-to-r from-red-600 via-rose-700 to-amber-700 rounded-t-lg shadow-lg" style={{ clipPath: 'polygon(15% 0%, 100% 0%, 90% 100%, 0% 100%)' }}>
+                  <div className="flex justify-around pt-2 opacity-30">
+                    {[...Array(8)].map((_, i) => <div key={i} className="w-[1px] h-12 bg-white" />)}
+                  </div>
+                </div>
+
+                <div className="absolute top-14 right-4 w-52 sm:w-64 h-56 bg-gradient-to-b from-[#FFF8DC] to-[#F5DEB3] rounded-sm shadow-md border-r-4 border-amber-900/20">
+                  <div className="absolute -bottom-1 left-4 text-xs text-rose-500 opacity-80">❄️ 🌸 ❄️</div>
+                  <div className="absolute top-0 left-2 w-4 h-56 bg-amber-100 border-r-2 border-amber-300 shadow-inner" />
+                  <div className="absolute bottom-0 left-10 w-18 h-36 bg-amber-950 rounded-t-lg overflow-hidden border-2 border-amber-900 shadow-inner">
+                    <div className="w-full h-full bg-amber-900 flex flex-col justify-around py-3 items-center">
+                      <div className="w-14 h-12 border border-amber-950 rounded-xs bg-amber-850 shadow-xs" />
+                      <div className="w-14 h-14 border border-amber-950 rounded-xs bg-amber-850 shadow-xs" />
+                    </div>
+                  </div>
+                  <div className="absolute top-8 right-6 w-14 h-16 bg-sky-200 rounded-md border-2 border-amber-900 shadow-inner overflow-hidden">
+                    <div className="w-full h-1/2 bg-rose-300/80 rounded-b" />
+                  </div>
+                </div>
+
+                {/* Nameplate */}
+                <div className="absolute top-18 right-8 z-20">
+                  <div className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-800 via-amber-900 to-amber-950 text-amber-100 border-2 border-amber-400 shadow-xl flex items-center gap-1.5">
+                    <span className="text-amber-300 text-xs animate-pulse">✦</span>
+                    <span className="font-serif font-black text-[11px] sm:text-xs tracking-wider uppercase drop-shadow">KANDHASAAMY ILLAM</span>
+                    <span className="text-amber-300 text-xs animate-pulse">✦</span>
+                  </div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-300 shadow-[0_0_12px_#fde047] mx-auto -mt-0.5 animate-pulse" />
+                </div>
+
+                {/* Gate & Postbox */}
+                <div className="absolute bottom-0 -left-6 w-24 h-20 z-15">
+                  <div className="w-full h-14 bg-gradient-to-t from-stone-400 to-stone-300 rounded-t border-t-2 border-stone-200 shadow" />
+                  <div className="absolute -left-1 top-4 w-6 h-9 bg-red-600 rounded-t-sm border border-red-800 shadow flex items-center justify-center">
+                    <span className="text-[7px] text-white font-bold">POST</span>
+                  </div>
+                </div>
+
+                {/* Glowing Delivered Letter at the Gate */}
+                {animStep >= 2 && (
+                  <div className="absolute bottom-10 left-4 z-30 animate-bounce">
+                    <div className="w-14 h-9 bg-gradient-to-r from-rose-100 via-white to-pink-100 rounded-md shadow-2xl border-2 border-rose-500 flex items-center justify-center">
+                      <span className="text-sm">💌</span>
+                    </div>
+                    <div className="mt-1 bg-rose-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow whitespace-nowrap">
+                      For You 💌
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Scooty & Rider */}
+            <div className={`absolute bottom-16 z-25 transition-all duration-2000 ease-out select-none ${animStep === 0 ? 'left-[15%] sm:left-[22%]' : 'left-[36%] sm:left-[42%]'}`}>
+              {animStep === 1 && (
+                <div className="absolute -top-12 left-12 bg-white/95 text-rose-600 px-3 py-1 rounded-full shadow-lg text-xs font-bold animate-bounce flex items-center gap-1 border border-rose-200">
+                  <span>Ding-Dong! 🔔</span>
+                </div>
+              )}
+              <svg className="w-40 sm:w-48 h-40 sm:h-48 drop-shadow-lg" viewBox="0 0 160 160" fill="none">
+                <ellipse cx="80" cy="148" rx="55" ry="8" fill="#000" opacity="0.25" />
+                <circle cx="125" cy="132" r="16" fill="#334155" />
+                <circle cx="35" cy="132" r="16" fill="#334155" />
+                <path d="M30 130 C30 115 50 115 65 125 L105 125 C115 110 135 112 140 128 L125 128 Z" fill="#fb7185" />
+                <path d="M102 125 L120 85 L98 122 Z" fill="#f43f5e" />
+                <circle cx="122" cy="74" r="6" fill="#fef08a" />
+                <path d="M45 105 C45 98 90 98 95 105 L90 120 L48 120 Z" fill="#1e293b" />
+                <rect x="25" y="90" width="22" height="24" rx="4" fill="#e11d48" />
+                <text x="32" y="104" fontSize="6">💌</text>
+                <path d="M68 95 L80 122 L98 122" stroke="#1e293b" strokeWidth="8" strokeLinecap="round" fill="none" />
+                <path d="M62 65 C62 55 90 55 88 70 L80 102 L60 98 Z" fill="#3b82f6" />
+                {animStep >= 2 ? (
+                  <path d="M78 68 Q105 70 120 74" stroke="#3b82f6" strokeWidth="7" strokeLinecap="round" fill="none" />
+                ) : (
+                  <path d="M78 68 L108 58" stroke="#3b82f6" strokeWidth="6" strokeLinecap="round" fill="none" />
+                )}
+                <circle cx="75" cy="42" r="14" fill="#fed7aa" />
+                <path d="M60 42 C60 22 92 22 92 42 Z" fill="#f43f5e" />
+              </svg>
+            </div>
+
+            {/* Road */}
+            <div className="absolute bottom-0 left-0 right-0 h-18 bg-gradient-to-t from-[#475569] to-[#64748b] border-t-4 border-[#334155] z-5 flex items-center">
+              <div className="w-full flex justify-around">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="w-10 sm:w-14 h-2 bg-white/70 rounded-full" />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="z-20 mt-3 text-center flex flex-col items-center">
+            {animStep >= 2 ? (
+              <button
+                onClick={onComplete}
+                className="group inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 text-white font-bold text-sm sm:text-base shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+              >
+                <span>Open The Delivered Envelope ➔</span>
+              </button>
+            ) : (
+              <button onClick={onComplete} className="text-xs text-gray-500 hover:text-rose-600 font-medium py-1 px-4 rounded-full bg-white/70 border border-rose-200">
+                Skip Delivery Scene ➔
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Scene 1: Envelope with Cover Removal
+    function HeartEnvelope({ data, onOpen }) {
+      const [isOpen, setIsOpen] = useState(false);
+      const [isCoverRemoved, setIsCoverRemoved] = useState(false);
+      const [isHovered, setIsHovered] = useState(false);
+
+      const handleOpen = (e) => {
+        if (e) e.stopPropagation();
+        if (isOpen) {
+          onOpen();
+          return;
+        }
+        setIsOpen(true);
+        if (window.confetti) {
+          confetti({ particleCount: 75, spread: 90, origin: { y: 0.6 }, colors: ['#f43f5e', '#fb7185', '#fda4af', '#ffd700'] });
+          setTimeout(() => {
+            confetti({ particleCount: 50, spread: 80, origin: { y: 0.5 }, colors: ['#ec4899', '#f43f5e', '#a855f7'] });
+          }, 350);
+        }
+        // Remove envelope cover after brief open
+        setTimeout(() => {
+          setIsCoverRemoved(true);
+        }, 700);
+      };
+
+      return (
+        <div
+          onClick={isOpen ? onOpen : undefined}
+          className="relative w-full h-full min-h-[82vh] flex flex-col items-center justify-between py-6 px-4 select-none cursor-pointer"
+        >
+          <div className="text-center max-w-lg mx-auto z-10">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-rose-100 text-rose-700 text-xs sm:text-sm font-semibold tracking-wide uppercase shadow-xs">
+              ✨ Special Delivery Just For You
+            </span>
+            <h1 className="mt-3 text-3xl sm:text-5xl font-serif font-bold text-gray-800 tracking-tight">
+              A Little Letter For{' '}
+              <span className="bg-gradient-to-r from-rose-500 to-pink-600 bg-clip-text text-transparent font-handwriting text-4xl sm:text-6xl">
+                {data.girlfriendName}
+              </span>
+            </h1>
+            <p className="mt-1.5 text-xs sm:text-sm text-gray-600">
+              {!isOpen ? "There's a secret waiting inside... touch the beating heart." : "Touch anywhere to transition to our world ✨"}
+            </p>
+          </div>
+
+          <div className="relative w-full max-w-md flex items-center justify-center my-auto min-h-[300px]">
+            {!isCoverRemoved ? (
+              <div
+                onClick={handleOpen}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                className={`relative mx-auto cursor-pointer transition-all duration-700 ${!isOpen ? 'hover:scale-105 active:scale-95' : ''}`}
+                style={{ width: '100%', maxWidth: '360px', height: '225px' }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-rose-100 to-rose-200 rounded-2xl shadow-2xl border-2 border-rose-300 overflow-hidden" />
+
+                <div
+                  className={`absolute left-3 right-3 bg-white/95 backdrop-blur-md rounded-xl p-5 shadow-lg border border-rose-100 text-center transition-all duration-700 ease-out z-10 ${
+                    isOpen ? '-translate-y-32 opacity-100 shadow-2xl ring-2 ring-rose-200/50' : 'translate-y-2 opacity-30 pointer-events-none'
+                  }`}
+                >
+                  <div className="w-8 h-1 bg-rose-200 rounded-full mx-auto mb-3" />
+                  <h3 className="font-handwriting text-2xl text-rose-600 font-bold">
+                    {data.envelopeMessage.greeting}
+                  </h3>
+                  <p className="mt-2 text-xs text-gray-700 leading-relaxed font-sans">
+                    "{data.envelopeMessage.previewText}"
+                  </p>
+                </div>
+
+                <div className="absolute inset-0 z-20 pointer-events-none">
+                  <div className="absolute left-0 bottom-0 w-0 h-0 border-solid" style={{ borderWidth: '112px 0 0 180px', borderColor: 'transparent transparent transparent #fecdd3' }} />
+                  <div className="absolute right-0 bottom-0 w-0 h-0 border-solid" style={{ borderWidth: '112px 180px 0 0', borderColor: 'transparent #fecdd3 transparent transparent' }} />
+                  <div className="absolute bottom-0 left-0 right-0 h-0 border-solid" style={{ borderWidth: '0 180px 112px 180px', borderColor: 'transparent transparent #fda4af transparent' }} />
+                </div>
+
+                <div
+                  className={`absolute top-0 left-0 right-0 h-0 border-solid z-30 transition-transform duration-700 origin-top ${isOpen ? '-scale-y-100' : ''}`}
+                  style={{ borderWidth: '112px 180px 0 180px', borderColor: '#fb7185 transparent transparent transparent' }}
+                />
+
+                {!isOpen && (
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center">
+                    <div className={`w-16 h-16 rounded-full bg-gradient-to-tr from-rose-600 via-rose-500 to-pink-500 flex items-center justify-center shadow-lg transition-transform duration-300 ring-4 ring-rose-200/80 ${isHovered ? 'scale-115' : 'animate-heartbeat'}`}>
+                      <span className="text-2xl text-white">❤️</span>
+                    </div>
+                    <span className="mt-2 text-xs font-semibold text-rose-700 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full shadow-md whitespace-nowrap">
+                      Tap to open 💌
+                    </span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Envelope Cover Removed — Pure Letter Presentation */
+              <div className="w-full max-w-sm sm:max-w-md bg-white/95 backdrop-blur-xl rounded-3xl p-7 sm:p-8 shadow-2xl border-2 border-rose-200 text-center animate-fade-in relative transition-all duration-700">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 text-white mx-auto flex items-center justify-center mb-4 shadow-md animate-heartbeat text-xl">
+                  ❤️
+                </div>
+                <h3 className="font-handwriting text-3xl sm:text-4xl text-rose-600 font-bold">
+                  {data.envelopeMessage.greeting}
+                </h3>
+                <p className="mt-4 text-sm sm:text-base text-gray-700 leading-relaxed font-sans px-2">
+                  "{data.envelopeMessage.previewText}"
+                </p>
+                <div className="mt-6 pt-4 border-t border-rose-100 flex items-center justify-center gap-2 text-rose-500 font-semibold text-xs tracking-wider uppercase">
+                  <span>With all my love</span>
+                  <span>❤️</span>
+                  <span>{data.boyfriendName}</span>
+                </div>
+                <div className="mt-7">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onOpen(); }}
+                    className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 text-white font-semibold text-sm sm:text-base shadow-xl hover:scale-105 active:scale-95 transition-all"
+                  >
+                    <span>Step Into Our Story ➔</span>
+                  </button>
+                  <p className="mt-2 text-xs text-gray-400">(Or touch anywhere on the screen)</p>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="min-h-[20px]" />
+        </div>
+      );
+    }
+
+    // Scene 1: Dancing Couple
+    function DancingCouples({ boyfriendName, girlfriendName, onNext }) {
+      const [isTwirling, setIsTwirling] = useState(false);
+      const [quoteIndex, setQuoteIndex] = useState(0);
+
+      const quotes = [
+        "“Every step with you feels like home.”",
+        "“Lost in this rhythm, forever in your arms.”",
+        "“I never want this song to end.”",
+        "“You are my favorite melody.”",
+        "“If I know what love is, it is because of you.”"
+      ];
+
+      const handleTwirl = (e) => {
+        if (e) e.stopPropagation();
+        setIsTwirling(true);
+        setQuoteIndex((prev) => (prev + 1) % quotes.length);
+        if (window.confetti) {
+          confetti({ particleCount: 30, spread: 60, origin: { y: 0.5 }, colors: ['#f43f5e', '#ffd700', '#fbcfe8'] });
+        }
+        setTimeout(() => setIsTwirling(false), 1200);
+      };
+
+      return (
+        <div className="relative w-full h-full min-h-[82vh] flex flex-col items-center justify-between py-6 px-4 select-none">
+          <div className="text-center max-w-xl mx-auto z-10">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-rose-100 text-rose-700 text-xs font-semibold tracking-wider uppercase shadow-xs">
+              ❤️ Our Endless Dance
+            </span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-serif font-bold text-gray-800">
+              Under The Stars With You
+            </h2>
+            <p className="mt-2 text-sm sm:text-base font-handwriting text-2xl sm:text-3xl text-rose-600 transition-all duration-300">
+              {quotes[quoteIndex]}
+            </p>
+          </div>
+
+          <div className="relative w-full max-w-xl h-[360px] sm:h-[400px] my-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-white/80 bg-gradient-to-b from-[#160f2e] via-[#2a1745] to-[#451842] flex items-center justify-center">
+            <div className="absolute top-6 right-10 w-16 h-16 rounded-full bg-amber-100 shadow-[0_0_50px_rgba(254,243,199,0.7)] flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-[#160f2e] absolute -top-1 -right-1" />
+            </div>
+
+            <div className="absolute top-0 left-0 right-0 h-10 flex justify-around items-start opacity-80 pointer-events-none">
+              {[...Array(9)].map((_, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <div className="w-[1px] h-3 bg-white/40" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-200 shadow-[0_0_10px_#fde68a] animate-pulse" style={{ animationDelay: `${i * 0.3}s` }} />
+                </div>
+              ))}
+            </div>
+
+            <div
+              onClick={handleTwirl}
+              className={`relative cursor-pointer transition-transform duration-700 ${isTwirling ? 'scale-110 rotate-[360deg]' : 'hover:scale-105'}`}
+            >
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex space-x-2 pointer-events-none">
+                <span className="text-rose-400 text-base animate-bounce">💖</span>
+                <span className="text-pink-300 text-xl animate-pulse">💕</span>
+              </div>
+
+              <div className="relative animate-dance-sway">
+                <svg className="w-52 h-68 sm:w-60 sm:h-76 drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" viewBox="0 0 240 300" fill="none">
+                  <ellipse cx="120" cy="275" rx="65" ry="12" fill="#000" opacity="0.35" />
+                  <g>
+                    <path d="M85 200 L80 270 L95 270 L102 200 Z" fill="#1e293b" />
+                    <path d="M102 200 L110 270 L125 270 L118 200 Z" fill="#0f172a" />
+                    <ellipse cx="86" cy="270" rx="9" ry="4" fill="#090d16" />
+                    <ellipse cx="118" cy="270" rx="9" ry="4" fill="#090d16" />
+                    <path d="M78 120 C78 115 125 115 125 120 L120 205 C120 205 100 210 82 205 Z" fill="#334155" />
+                    <polygon points="98,120 105,120 102,150 95,120" fill="#ffffff" />
+                    <polygon points="99,126 102,126 101,155 100,155" fill="#f43f5e" />
+                    <path d="M120 135 Q145 155 135 185" stroke="#334155" strokeWidth="11" strokeLinecap="round" />
+                    <circle cx="100" cy="95" r="18" fill="#fed7aa" />
+                    <path d="M82 92 C82 72 118 72 118 90 C118 90 115 82 100 82 C88 82 84 90 82 92 Z" fill="#1c1917" />
+                    <circle cx="102" cy="100" r="3" fill="#fca5a5" opacity="0.8" />
+                  </g>
+                  <g className="animate-dance-bounce">
+                    <path d="M130 160 C110 210 95 240 85 260 C125 272 175 270 195 255 C185 230 165 195 150 160 Z" fill="#f472b6" opacity="0.95" />
+                    <path d="M132 155 C115 195 90 235 88 255 C125 268 175 266 198 250 C185 220 165 185 148 155 Z" fill="#fb7185" />
+                    <path d="M132 125 L150 125 L148 160 C148 160 140 165 132 160 Z" fill="#f43f5e" />
+                    <path d="M135 135 Q115 145 105 135" stroke="#fed7aa" strokeWidth="8" strokeLinecap="round" />
+                    <path d="M142 85 C162 85 172 115 170 150 C162 145 155 135 152 115 Z" fill="#451a03" />
+                    <circle cx="140" cy="94" r="16" fill="#fed7aa" />
+                    <path d="M125 90 C125 76 156 76 156 90 C156 90 148 83 140 84 C132 84 128 88 125 90 Z" fill="#451a03" />
+                    <circle cx="152" cy="85" r="4" fill="#f43f5e" />
+                    <circle cx="134" cy="99" r="3" fill="#f43f5e" opacity="0.7" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            <div className="absolute bottom-3 z-20 flex items-center gap-2 bg-black/45 backdrop-blur-md px-4 py-1.5 rounded-full border border-pink-400/30 text-white shadow-lg text-xs sm:text-sm">
+              <span className="font-semibold text-pink-200">{boyfriendName}</span>
+              <span className="text-rose-400 animate-pulse">❤️</span>
+              <span className="font-semibold text-pink-200">{girlfriendName}</span>
+            </div>
+          </div>
+
+          <div className="z-20 mt-4 text-center">
+            <button
+              onClick={onNext}
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold text-sm shadow-xl hover:scale-105 active:scale-95 transition-all"
+            >
+              <span>Why You're My Favorite ➔</span>
+            </button>
+            <p className="mt-1 text-xs text-gray-500 font-medium">(Tap anywhere to transition ✨)</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Scene 2: Cute Conversation
+    function CuteConversation({ conversation, girlfriendName, boyfriendName, onNext }) {
+      const [displayedCount, setDisplayedCount] = useState(2);
+      const [isTyping, setIsTyping] = useState(false);
+      const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+      const [reactions, setReactions] = useState({});
+      const chatBottomRef = useRef(null);
+
+      useEffect(() => {
+        chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, [displayedCount, isTyping]);
+
+      useEffect(() => {
+        let timer;
+        if (isAutoPlaying && displayedCount < conversation.length) {
+          setIsTyping(true);
+          timer = setTimeout(() => {
+            setIsTyping(false);
+            setDisplayedCount((prev) => prev + 1);
+          }, 2000);
+        } else if (displayedCount >= conversation.length) {
+          setIsAutoPlaying(false);
+        }
+        return () => clearTimeout(timer);
+      }, [isAutoPlaying, displayedCount, conversation.length]);
+
+      const handleNext = (e) => {
+        if (e) e.stopPropagation();
+        if (displayedCount < conversation.length) {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            setDisplayedCount((prev) => prev + 1);
+          }, 700);
+        } else if (onNext) {
+          onNext();
+        }
+      };
+
+      const handleReaction = (msgId, emoji, e) => {
+        if (e) e.stopPropagation();
+        setReactions((prev) => ({ ...prev, [msgId]: emoji }));
+        if (window.confetti) confetti({ particleCount: 15, spread: 45, origin: { y: 0.7 } });
+      };
+
+      const currentMessages = conversation.slice(0, displayedCount);
+      const isFinished = displayedCount >= conversation.length;
+      const nextSender = displayedCount < conversation.length ? conversation[displayedCount].sender : null;
+
+      return (
+        <div className="relative w-full h-full min-h-[82vh] flex flex-col justify-between py-6 px-4 max-w-xl mx-auto select-none">
+          <div className="text-center mb-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-100 text-pink-700 text-xs font-semibold uppercase tracking-wider">
+              💬 Our Sweet Conversations
+            </span>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-serif font-bold text-gray-800">
+              Late Night Thoughts With You
+            </h2>
+            <p className="mt-1 text-xs text-gray-600">Touch anywhere to advance each message 💌</p>
+          </div>
+
+          <div
+            onClick={handleNext}
+            className="glass-card rounded-3xl shadow-2xl border-2 border-rose-100/90 overflow-hidden bg-white/90 cursor-pointer flex-1 flex flex-col my-auto max-h-[460px]"
+          >
+            <div className="bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-4 py-3 text-white flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-rose-200 border-2 border-white flex items-center justify-center text-base shadow">👧🏻</div>
+                <div>
+                  <h3 className="font-semibold text-sm leading-tight">{girlfriendName} ❤️</h3>
+                  <p className="text-[10px] text-pink-100">Active now • In your heart</p>
+                </div>
+              </div>
+              <button
+                onClick={(e) => { e.stopPropagation(); setIsAutoPlaying(!isAutoPlaying); }}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-medium ${isAutoPlaying ? 'bg-white text-rose-600 font-bold' : 'bg-white/20 text-white'}`}
+              >
+                {isAutoPlaying ? 'Playing...' : '▶ Auto'}
+              </button>
+            </div>
+
+            <div className="p-3 sm:p-4 space-y-3 overflow-y-auto flex-1 bg-gradient-to-b from-rose-50/40 via-white to-pink-50/20">
+              <div className="text-center my-1">
+                <span className="text-[10px] font-semibold text-gray-400 bg-white/90 px-3 py-0.5 rounded-full border border-rose-100">
+                  One of our favorite nights ✨
+                </span>
+              </div>
+
+              {currentMessages.map((msg) => {
+                const isHim = msg.sender === 'him';
+                const reaction = reactions[msg.id] || msg.reaction;
+
+                return (
+                  <div key={msg.id} className={`flex flex-col ${isHim ? 'items-end' : 'items-start'} group`}>
+                    <div className="flex items-end gap-1.5 max-w-[88%] sm:max-w-[78%]">
+                      {!isHim && <div className="w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center text-[10px] mb-1">👧🏻</div>}
+                      <div className="relative">
+                        <div className={`px-3.5 py-2 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-xs ${
+                          isHim ? 'bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-br-xs' : 'bg-white text-gray-800 border border-pink-100 rounded-bl-xs'
+                        }`}>
+                          {msg.text}
+                        </div>
+                        {reaction && (
+                          <span className={`absolute -bottom-2 ${isHim ? 'right-2' : 'left-2'} bg-white shadow-md border border-rose-100 rounded-full px-1 py-0.2 text-[10px]`}>
+                            {reaction}
+                          </span>
+                        )}
+                      </div>
+                      {isHim && <div className="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center text-[10px] mb-1">👦🏻</div>}
+                    </div>
+
+                    <div className="flex items-center gap-1 mt-0.5 text-[9px] text-gray-400 px-8">
+                      <span>{msg.time}</span>
+                      <div className="flex items-center gap-1 ml-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={(e) => handleReaction(msg.id, '❤️', e)}>❤️</button>
+                        <button onClick={(e) => handleReaction(msg.id, '🥰', e)}>🥰</button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {isTyping && (
+                <div className={`flex items-center gap-2 ${nextSender === 'him' ? 'justify-end' : 'justify-start'}`}>
+                  <div className="bg-white px-3 py-1.5 rounded-2xl border border-pink-100 shadow-xs text-[10px] text-gray-400">
+                    <span>{nextSender === 'him' ? boyfriendName : girlfriendName} is typing...</span>
+                  </div>
+                </div>
+              )}
+              <div ref={chatBottomRef} />
+            </div>
+
+            <div className="p-2.5 bg-white/95 border-t border-rose-100 flex items-center justify-between text-xs">
+              <span className="text-[11px] text-gray-500 pl-1 font-medium">
+                {!isFinished ? `Message ${displayedCount} of ${conversation.length} (Tap anywhere)` : "All caught up with love ❤️"}
+              </span>
+              {!isFinished ? (
+                <button onClick={handleNext} className="px-3 py-1.5 rounded-xl bg-rose-500 text-white text-xs font-semibold shadow-sm">
+                  Next Message ➔
+                </button>
+              ) : (
+                <span className="text-rose-500 font-semibold text-xs animate-pulse">Ready for next surprise ✨</span>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-3 text-center z-20">
+            <button
+              onClick={onNext}
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold text-sm shadow-lg hover:scale-105 active:scale-95 transition-all"
+            >
+              <span>{isFinished ? "See Why You're My Favorite ➔" : "Skip to Next Surprise ➔"}</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Scene 3: Love Reasons
+    function LoveReasons({ reasons, onNext }) {
+      const [flipped, setFlipped] = useState({});
+
+      return (
+        <div className="relative w-full h-full min-h-[82vh] flex flex-col justify-between py-6 px-4 max-w-4xl mx-auto select-none">
+          <div className="text-center mb-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-semibold uppercase tracking-wider">
+              ✨ The Little Things
+            </span>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-serif font-bold text-gray-800">Why You Are My Favorite Person</h2>
+            <p className="mt-1 text-xs sm:text-sm text-gray-600">Tap each note to flip and reveal a sweet memory</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-auto">
+            {reasons.map((r, i) => {
+              const isF = flipped[i];
+              return (
+                <div
+                  key={i}
+                  onClick={(e) => { e.stopPropagation(); setFlipped(p => ({ ...p, [i]: !p[i] })); }}
+                  className="h-44 sm:h-52 cursor-pointer perspective-1000 select-none"
+                >
+                  <div className="relative w-full h-full duration-500 preserve-3d transition-transform" style={{ transform: isF ? 'rotateY(180deg)' : 'none', transformStyle: 'preserve-3d' }}>
+                    <div className="absolute inset-0 backface-hidden glass-card rounded-2xl p-5 flex flex-col items-center justify-center text-center shadow-md border border-rose-100" style={{ backfaceVisibility: 'hidden' }}>
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-100 to-pink-100 flex items-center justify-center text-2xl mb-3 shadow-inner">{r.emoji}</div>
+                      <h3 className="font-serif font-bold text-base text-gray-800">{r.title}</h3>
+                      <span className="mt-2.5 text-[11px] font-medium text-rose-500 bg-rose-50 px-2.5 py-0.5 rounded-full">Tap to open ✨</span>
+                    </div>
+
+                    <div className="absolute inset-0 backface-hidden rounded-2xl p-5 flex flex-col items-center justify-center text-center shadow-xl bg-gradient-to-br from-rose-500 to-pink-600 text-white" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+                      <span className="text-2xl mb-1">❤️</span>
+                      <p className="text-xs sm:text-sm leading-relaxed font-medium">"{r.desc}"</p>
+                      <span className="mt-3 text-[10px] text-pink-200">Tap to flip back</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 text-center z-20">
+            <button
+              onClick={onNext}
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold text-sm shadow-lg hover:scale-105 active:scale-95 transition-all"
+            >
+              <span>One Last Surprise For You ➔</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    function TamilPoem({ onNext }) {
+      const lines = [
+        'வரியின் இடையில்',
+        'இசைகள் வெல்ல',
+        'இதழின் ஈரம்',
+        'மூச்சு தள்ள',
+        'இரவின் இமையில்',
+        'நீந்தி பார்ப்போமா',
+        'காட்டுத் தீயும் பற்றிக்கொள்ள',
+        'நீரின் நீலம் ஒற்றிக்கொள்ள',
+        'இரவின் நீளம் இன்று நீயும்',
+        'என்னோடு பார்ப்பாயா ஆஆ',
+        'அலையின் மேலே துடுப்பை போலே',
+        'அறிக்கை தந்து என்னை கொஞ்சம் கொள்வாயா',
+        'கயலின் நடுவே சாய்ந்துகொள்ள',
+        'முகிலின் மீது படர்ந்துகொள்ள',
+        'முழுமதி நீயும் என்னோடு இன்று சேர்வாயா'
+      ];
+
+      return (
+        <section className="w-full h-full min-h-0 max-w-2xl mx-auto flex flex-col items-center px-4 py-3">
+          <div className="shrink-0 text-center mb-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-semibold uppercase tracking-wider">
+              A poem for Sowmiya
+            </span>
+            <h2 className="mt-2 font-tamil text-xl sm:text-2xl font-bold text-rose-700">வரியின் இடையில்</h2>
+          </div>
+          <div className="w-full flex-1 min-h-0 overflow-hidden flex justify-center px-2">
+            <div className="my-auto py-2 text-center font-tamil text-[13px] sm:text-base leading-5 sm:leading-6 text-gray-800">
+              {lines.map((line, index) => (
+                <p key={index}>{line}</p>
+              ))}
+            </div>
+          </div>
+          <button
+            onClick={onNext}
+            className="shrink-0 mt-2 inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold text-sm shadow-lg hover:scale-105 active:scale-95 transition-all"
+          >
+            <span>One Last Surprise For You ➔</span>
+          </button>
+        </section>
+      );
+    }
+
+    // Scene 5: Final Promise
+    function FinalPromise({ finalLetter, boyfriendName, girlfriendName, onRestart }) {
+      const handleConfetti = (e) => {
+        if (e) e.stopPropagation();
+        if (window.confetti) {
+          confetti({ particleCount: 90, spread: 90, origin: { y: 0.5 }, colors: ['#f43f5e', '#fb7185', '#ffd700', '#ec4899', '#a855f7'] });
+        }
+      };
+
+      return (
+        <div className="relative w-full h-full min-h-[82vh] flex flex-col justify-between py-6 px-4 max-w-xl mx-auto select-none">
+          <div className="text-center mb-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-semibold uppercase tracking-wider">
+              ❤️ My Final Promise
+            </span>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-serif font-bold text-gray-800">Forever & Always</h2>
+            <p className="mt-1 text-xs text-gray-500">Every word written just for you, {girlfriendName}</p>
+          </div>
+
+          <div className="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border-2 border-rose-200/90 relative overflow-hidden bg-gradient-to-b from-[#fffafb] to-[#fff0f3] my-auto">
+            <div className="w-12 h-12 rounded-full bg-rose-100 mx-auto flex items-center justify-center mb-3 text-2xl">
+              ❤️
+            </div>
+            <div className="space-y-3.5 text-gray-700 text-xs sm:text-sm leading-relaxed text-center font-sans">
+              {finalLetter.paragraphs.map((p, idx) => (
+                <p key={idx} className="italic">"{p}"</p>
+              ))}
+            </div>
+            <div className="mt-6 pt-3 border-t border-rose-200/60 text-center">
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold">All My Love Forever,</p>
+              <p className="font-handwriting text-3xl sm:text-4xl text-rose-600 font-bold mt-0.5">{boyfriendName}</p>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-col items-center gap-2.5 z-20">
+            <button
+              onClick={handleConfetti}
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 hover:from-rose-600 text-white font-bold text-sm sm:text-base shadow-xl hover:scale-105 active:scale-95 transition-all"
+            >
+              <span>Shower With 1,000 Hearts ❤️</span>
+            </button>
+            <button onClick={onRestart} className="text-xs text-gray-500 hover:text-rose-600 font-medium py-1 px-3">
+              🔄 Experience It From The Beginning
+            </button>
+            <footer className="text-[11px] text-gray-400 font-medium">Made with love by {boyfriendName} for {girlfriendName} 💕</footer>
+          </div>
+        </div>
+      );
+    }
+
+    // Music Player Widget
+    function MusicPlayer({ isPlaying, setIsPlaying }) {
+      const audioRef = useRef(null);
+      const audioUrl = './Naan%20Un%20Azhaginile%20BGM.mp3';
+      const songTitle = 'Naan Un Azhaginile';
+
+      useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        const startPlayback = () => {
+          audio.play().catch(() => {});
+          window.removeEventListener('pointerdown', startPlayback);
+          window.removeEventListener('keydown', startPlayback);
+        };
+
+        audio.play().catch(() => {
+          window.addEventListener('pointerdown', startPlayback, { once: true });
+          window.addEventListener('keydown', startPlayback, { once: true });
+        });
+
+        return () => {
+          window.removeEventListener('pointerdown', startPlayback);
+          window.removeEventListener('keydown', startPlayback);
+        };
+      }, []);
+
+      return (
+        <div className="fixed bottom-4 right-4 z-50 select-none">
+          <audio
+            ref={audioRef}
+            src={audioUrl}
+            autoPlay
+            loop
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+          />
+          <div className="glass-card rounded-2xl shadow-2xl p-2.5 border border-pink-200/80 flex items-center gap-2.5 backdrop-blur-xl">
+            <button
+              type="button"
+              onClick={() => {
+                if (isPlaying) audioRef.current?.pause();
+                else audioRef.current?.play().catch(() => setIsPlaying(false));
+              }}
+              aria-label={isPlaying ? 'Pause song' : 'Play song'}
+              title={isPlaying ? 'Pause song' : 'Play song'}
+              className="relative cursor-pointer w-10 h-10 shrink-0 rounded-full bg-neutral-900 border-2 border-rose-400 flex items-center justify-center shadow-md"
+            >
+              <span className={`w-4 h-4 rounded-full bg-gradient-to-tr from-rose-500 to-pink-400 flex items-center justify-center text-[9px] ${isPlaying ? 'animate-spin-slow' : ''}`}>
+                {isPlaying ? 'Ⅱ' : '▶'}
+              </span>
+            </button>
+            <div className="min-w-0 max-w-40">
+              <p className="truncate text-[11px] font-bold text-gray-800">🎵 {songTitle}</p>
+              <p className="text-[9px] text-rose-500 font-medium">{isPlaying ? 'Playing' : 'Paused • Tap to play'}</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Master App
+    function App() {
+      const [data, setData] = useState(() => {
+        const saved = localStorage.getItem('surprise_story_data_v2');
+        return saved ? { ...defaultData, ...JSON.parse(saved) } : defaultData;
+      });
+      const [currentScene, setCurrentScene] = useState(0);
+      const [isTransitioning, setIsTransitioning] = useState(false);
+      const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+
+      const totalScenes = 6;
+      const chapters = [
+        { title: "Delivery", emoji: "🛵" },
+        { title: "The Letter", emoji: "💌" },
+        { title: "Our Dance", emoji: "💃" },
+        { title: "Little Things", emoji: "🌸" },
+        { title: "A Poem", emoji: "📝" },
+        { title: "Forever", emoji: "💍" }
+      ];
+
+      const goToScene = (sceneIndex) => {
+        if (sceneIndex === currentScene || isTransitioning) return;
+        setIsTransitioning(true);
+        setTimeout(() => {
+          setCurrentScene(sceneIndex);
+          setIsTransitioning(false);
+        }, 280);
+      };
+
+      const nextScene = () => {
+        if (currentScene < totalScenes - 1) goToScene(currentScene + 1);
+      };
+      const prevScene = () => {
+        if (currentScene > 0) goToScene(currentScene - 1);
+      };
+
+      return (
+        <div className="relative w-screen h-screen overflow-hidden flex flex-col justify-between">
+          <FloatingHearts />
+          <TouchHearts />
+
+          {/* Top Header */}
+          <header className="relative z-40 px-4 py-2.5 flex items-center justify-between border-b border-rose-100/60 bg-white/40 backdrop-blur-md">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-pink-200 text-xs font-semibold text-rose-600 shadow-xs">
+              <span>❤️ For {data.girlfriendName}</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {chapters.map((chap, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => goToScene(idx)}
+                  className={`transition-all rounded-full flex items-center justify-center ${
+                    currentScene === idx
+                      ? 'w-8 h-8 bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md scale-110'
+                      : currentScene > idx
+                      ? 'w-6 h-6 bg-rose-200 text-rose-700'
+                      : 'w-6 h-6 bg-white/70 text-gray-400'
+                  }`}
+                  title={chap.title}
+                >
+                  <span className="text-xs">{chap.emoji}</span>
+                </button>
+              ))}
+            </div>
+          </header>
+
+          {/* Main Stage */}
+          <main className="relative flex-1 w-full overflow-hidden flex items-center justify-center p-2 sm:p-4">
+            <div className={`w-full max-w-4xl h-full flex flex-col justify-center transition-all duration-300 ${isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100 scene-enter'}`}>
+              {currentScene === 0 && (
+                <ScootyDeliveryIntro onComplete={nextScene} girlfriendName={data.girlfriendName} boyfriendName={data.boyfriendName} />
+              )}
+              {currentScene === 1 && (
+                <HeartEnvelope data={data} onOpen={nextScene} />
+              )}
+              {currentScene === 2 && (
+                <DancingCouples boyfriendName={data.boyfriendName} girlfriendName={data.girlfriendName} onNext={nextScene} />
+              )}
+              {currentScene === 3 && (
+                <LoveReasons reasons={data.reasons} onNext={nextScene} />
+              )}
+              {currentScene === 4 && (
+                <TamilPoem onNext={nextScene} />
+              )}
+              {currentScene === 5 && (
+                <FinalPromise finalLetter={data.finalLetter} boyfriendName={data.boyfriendName} girlfriendName={data.girlfriendName} onRestart={() => goToScene(0)} />
+              )}
+            </div>
+          </main>
+
+          {/* Footer Navigation */}
+          <footer className="relative z-40 px-4 py-2 flex items-center justify-between border-t border-rose-100/60 bg-white/40 backdrop-blur-md">
+            <div>
+              {currentScene > 0 ? (
+                <button onClick={prevScene} className="px-3 py-1 rounded-full text-xs font-semibold text-gray-600 bg-white/70 hover:bg-white border border-rose-200">
+                  ← Back
+                </button>
+              ) : (
+                <span className="text-[11px] text-gray-400 pl-1">Delivery to Kandhasaamy Illam 🛵</span>
+              )}
+            </div>
+
+            <div className="hidden sm:block">
+              <span className="text-[11px] font-semibold text-rose-500 uppercase tracking-widest">
+                Chapter {currentScene + 1} of {totalScenes}: {chapters[currentScene].title}
+              </span>
+            </div>
+
+            <div>
+              {currentScene < totalScenes - 1 ? (
+                <button onClick={nextScene} className="px-3.5 py-1 rounded-full text-xs font-semibold text-white bg-gradient-to-r from-rose-500 to-pink-500">
+                  Next →
+                </button>
+              ) : (
+                <span className="text-[11px] text-rose-600 font-bold pr-1">Forever Yours ❤️</span>
+              )}
+            </div>
+          </footer>
+
+          <MusicPlayer isPlaying={isMusicPlaying} setIsPlaying={setIsMusicPlaying} />
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
